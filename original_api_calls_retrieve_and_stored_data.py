@@ -19,6 +19,12 @@
 # """
 
 
+# https://api.nasa.gov/
+'''
+NASA offers numerous free APIs, there is a rate limit of 50 requests per IP per day 
+for the Demo Key. Group 1 decided to write a function to call the APIs, and then store the JSON
+repsonse packet in a file, so we could use that to query from
+'''
 
 
 # [PY1] A function with two or more parameters,
@@ -36,6 +42,7 @@ def get_api_response(url, json_file_name, api_key = "DEMO_KEY"):
     # requests.get() accepts params argument that takes a dictionary and append it to the url sent out.
     response = requests.get(url, params=params)
 
+    # [PY5] A dictionary where you write code to access its keys, values, or items
     resp = response.json()
     print(response.json())
 
