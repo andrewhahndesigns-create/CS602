@@ -2,7 +2,7 @@
 # https://api.nasa.gov/
 '''
 NASA offers numerous free APIs, however, there is a rate limit of 50 requests per IP per day
-for the Demo Key. Group 1 decided to write a function to call the APIs, and then store the JSON
+for the Demo Key. Group 1 decided to write a function to call our two main APIs, and then store the JSON
 repsonse packet in a file, so we could use that to query from for our streamlit web-application
 '''
 
