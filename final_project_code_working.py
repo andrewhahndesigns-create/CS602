@@ -15,11 +15,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-###############
+#######
 st.sidebar.title("Welcome")
 sidebar_options = ['Astronomy Picture of the Day','Near Earth Objects','Earth Observatory Natural Event Tracker']
 page = st.sidebar.radio("Explore NASA Data", sidebar_options)
 
+#################################################
 if page == 'Astronomy Picture of the Day':
     st.header("Astronomy Picture of The Day")
 
