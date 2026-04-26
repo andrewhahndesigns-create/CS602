@@ -2,7 +2,7 @@
 
 [PY1] - original_api_calls_retrieve_and_stored_data.py | Function w/ 2+ parameters, w/ a default value, called at least twice
 [PY5] - original_api_calls_retrieve_and_stored_data.py | Dictionary stored
-[PY 
+[PY3] - try except | EONET 
 [PY 
 
 
@@ -22,14 +22,14 @@ At least 4, one of which is a map:
 [VIZ1]
 [VIZ2]
 [VIZ2]
-[VIZ 4 MAP]
+[VIZ 4 MAP] - EONET map
 
 # Data Analytics Capabilities
 
 At Least six:
 
-[DA
-[DA
+[DA4] - Filter by one condition | EONET condition on date
+[DA5] - FIlter by more than one map metric | EONET
 [DA
 [DA
 [DA
