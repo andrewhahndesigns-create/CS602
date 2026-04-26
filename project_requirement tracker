@@ -31,3 +31,24 @@ At least 4, one of which is a map:
 
 
 
+
+
+PRESENTAION:
+
+Web App Briefly
+    Say Hello & Introduce ourselves, show landing page, and reveal that we built a web app displaying some of NASA's Data
+
+NASA API webpage & Function to call API code with write statement. Also the Main project code calling the picture of the day and the caching. 
+    Data Retrieval: Talk about the source of our data, and show the code for the api calls
+
+Picture of the Day Page
+    Samantha (after showing the caching, this will be like 30 seconds)
+Near Earth Object Page 
+    Samantha
+Natural Events Page
+    Andrew
+
+Code
+    Have each teammate show a portion of code they wrote that they think is 'coolest'
+
+
