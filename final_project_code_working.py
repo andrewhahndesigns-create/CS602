@@ -44,6 +44,7 @@ sidebar_options = ['Astronomy Picture of the Day','Near Earth Objects','Earth Ob
 page = st.sidebar.radio("Explore NASA Data", sidebar_options)
 
 #################################################
+#################################################
 if page == 'Astronomy Picture of the Day':
     st.header("Astronomy Picture of The Day")
 
@@ -69,7 +70,8 @@ if page == 'Astronomy Picture of the Day':
     # print(apod_response)
     st.image(apod_response['url'], caption=f'{apod_response['date']} : {apod_response['explanation']}')
 
-
+#################################################
+#################################################
 elif page == 'Near Earth Objects':
     st.header("Near Earth Objects \"Asteroids\"")
 
@@ -272,8 +274,7 @@ elif page == 'Near Earth Objects':
     # Show chart in Streamlit
     st.pyplot(fig3)
 
-
-
-
+#################################################
+#################################################
 elif page == 'Earth Observatory Natural Event Tracker':
     st.header("Earth Observatory Natural Event Tracker")
