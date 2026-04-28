@@ -48,23 +48,30 @@ At Least six:
 
 -----------------------------------
 
-
 PRESENTAION:
 
 Web App Briefly
-    Say Hello & Introduce ourselves, show landing page, and reveal that we built a web app displaying some of NASA's Data
+      Andrew - Say Hello & Introduce ourselves, show landing page, and reveal that we built a web app displaying some of NASA's Data
+
 
 NASA API webpage & Function to call API code with write statement. Also the Main project code calling the picture of the day and the caching. 
-    Data Retrieval: Talk about the source of our data, and show the code for the api calls
+      Samantha -  Data Retrieval: Talk conceptually about the repsonse from the api, the REQUEST, library and the function to call the url
+                  Show the retrieval of the Asteroid data as an example. 
+                  And explain the data a bitabout the source of our data, and show the code for the api calls for the Near Earth Objects
+      Andrew - Explain the difference in parameter api call. 
+               Explain a bit about the EONET data.
+      
 
-Picture of the Day Page
-    Samantha (after showing the caching, this will be like 30 seconds)
-Near Earth Object Page 
-    Samantha
+Astronomy Picture of the Day/Near Earth Object Page 
+      Samantha (after showing the caching, this will be like 30 seconds)    
+      Samantha
 Natural Events Page
-    Andrew
+     Andrew
 
 Code
-    Have each teammate show a portion of code they wrote that they think is 'coolest'
+      Samantha
+      Andrew
+            Have each teammate show a portion of code they wrote that they think is 'coolest'
 
+Questions
 
