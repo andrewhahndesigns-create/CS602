@@ -1,6 +1,5 @@
 #Python Features (at least four)
 
-[PY1] - original_api_calls_retrieve_and_stored_data.py | Function w/ 2+ parameters, w/ a default value, called at least twice
 [PY2] - Natural_Event_Data | Line 28 | Function that geocodes a places name (Ex: New York, NY) and returns both Latitude adn longitude as seperate values
 [PY3] - Natural_Event_Data | Line 265 | Uses try and Except to check for errors while loading data from filtering options. Except presents an error 
 [PY4] - Natural_Event_Data | Line 253 | uses list comprehension for building the list from category slugs that are selected.
