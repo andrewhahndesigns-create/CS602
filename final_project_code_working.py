@@ -23,7 +23,7 @@ import requests
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime #make sure to look back to match between code bases
+inport datetime 
 import os
 import streamlit as st
 import pydeck as pdk  # [VIZ 4 MAP] Extra credit - interactive map
@@ -36,19 +36,7 @@ st.set_page_config(
     layout="wide"
 )
 
-'''
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: #000000;
-        color: #FFFFFF;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-'''
+
 #######
 st.sidebar.title("Welcome")
 sidebar_options = ['Astronomy Picture of the Day','Near Earth Objects','Earth Observatory Natural Event Tracker']
