@@ -31,7 +31,7 @@ from geopy.geocoders import Nominatim
 
 ############### [ST4] Setting the background & Sidebar Radio Buttons
 st.set_page_config(
-    page_title="EONET Global Event Map",
+    page_title="NASA Data",
     page_icon="🌎",
     layout="wide"
 )
