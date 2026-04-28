@@ -1,0 +1,61 @@
+#Python Features (at least four)
+
+[PY1] - original_api_calls_retrieve_and_stored_data.py | Function w/ 2+ parameters, w/ a default value, called at least twice
+[PY5] - original_api_calls_retrieve_and_stored_data.py | Dictionary stored
+[PY3] - try except | EONET 
+[PY 
+
+
+#Streamlit Features
+
+At least three different streamlit widgets:
+[ST1]
+[ST2]
+[ST3]
+
+[ST4] - final_project_code.py | Setting the background & Sidebar Radio Buttons
+
+
+# Vizualizations 
+
+At least 4, one of which is a map:
+[VIZ1]
+[VIZ2]
+[VIZ2]
+[VIZ 4 MAP] - EONET map
+
+# Data Analytics Capabilities
+
+At Least six:
+
+[DA4] - Filter by one condition | EONET condition on date
+[DA5] - FIlter by more than one map metric | EONET
+[DA
+[DA
+[DA
+[DA
+
+
+
+-----------------------------------
+
+
+PRESENTAION:
+
+Web App Briefly
+    Say Hello & Introduce ourselves, show landing page, and reveal that we built a web app displaying some of NASA's Data
+
+NASA API webpage & Function to call API code with write statement. Also the Main project code calling the picture of the day and the caching. 
+    Data Retrieval: Talk about the source of our data, and show the code for the api calls
+
+Picture of the Day Page
+    Samantha (after showing the caching, this will be like 30 seconds)
+Near Earth Object Page 
+    Samantha
+Natural Events Page
+    Andrew
+
+Code
+    Have each teammate show a portion of code they wrote that they think is 'coolest'
+
+
