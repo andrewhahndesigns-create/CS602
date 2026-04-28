@@ -19,9 +19,9 @@ At least three different streamlit widgets:
 # Vizualizations 
 
 At least 4, one of which is a map:
-[VIZ1] Bar Chart | NEO
-[VIZ2]
-[VIZ2]
+[VIZ1] Bar Chart | NEO diameter range
+[VIZ2] Pie Chart | NEO T/F Potentially Hazardous
+[VIZ3] Scatter Plot | NEO Close Approach Dates by Year
 [VIZ 4 MAP] - EONET map
 
 # Data Analytics Capabilities
@@ -30,9 +30,9 @@ At Least six:
 
 [DA4] - Filter by one condition | EONET condition on date
 [DA5] - Filter by more than one map metric | EONET
-[DA7] - create new column | NEO
-[DA2] - sort data .sort_index() | NEO
-[DA
+[DA7] - create new column | NEO diameter range
+[DA2] - sort data .sort_index() | NEO diameter range
+[DA9] - Add new column or perform calculations on DataFrame columns | NEO diameter range
 [DA
 
 
