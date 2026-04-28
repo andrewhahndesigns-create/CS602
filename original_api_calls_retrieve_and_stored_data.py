@@ -40,7 +40,7 @@ def get_api_response(url, json_file_name, api_key = "DEMO_KEY"):
 get_api_response("https://api.nasa.gov/neo/rest/v1/neo/browse", "neo_browse_data.json")
 
 
-# Ran once for Near Earth Object 'Browse' Data
+# New code for Eonet pull
 
 import requests
 import json
