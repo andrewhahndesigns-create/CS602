@@ -1,19 +1,26 @@
 #Python Features (at least four)
 
 [PY1] - original_api_calls_retrieve_and_stored_data.py | Function w/ 2+ parameters, w/ a default value, called at least twice
+[PY2] - Natural_Event_Data | Line 28 | Function that geocodes a places name (Ex: New York, NY) and returns both Latitude adn longitude as seperate values
+[PY3] - Natural_Event_Data | Line 265 | Uses try and Except to check for errors while loading data from filtering options. Except presents an error 
+[PY4] - Natural_Event_Data | Line 253 | uses list comprehension for building the list from category slugs that are selected.
 [PY5] - original_api_calls_retrieve_and_stored_data.py | Dictionary stored
-[PY3] - try except | EONET 
-[PY 
+      - Natural_Event_Data | Line 13 | Dictionary used to map category names to the slugs from the EONET API data
 
 
 #Streamlit Features
 
 At least three different streamlit widgets:
-[ST1] Streamlit Slider widget | NEO choose years for upcoming cloase approach dates
-[ST2]
-[ST3]
-
-[ST4] - final_project_code.py | Setting the background & Sidebar Radio Buttons
+[ST1]  - Streamlit Slider widget | NEO choose years for upcoming cloase approach dates
+       - Natural_Event_Data | Line 149 | Radio button for selecting time filter
+[ST2]  - Natural_Event_Data | Line 157 | checkbox for toggling on and off all time data
+       - Natural_Event_Data | Line 175 | Date input for calendar range selection
+       - Natural_Event_Data | Line 240 | toggle switches for categories 
+[ST3]  - Natural_Event_Data | Line 163 | Slider for lock back in days 
+       - Natural_Event_Data | Line 199 | text input for searching a location
+       - Natural_Event_Data | Line 205 | slider for radius around search location
+[ST4]  - final_project_code.py | Setting the background & Sidebar Radio Buttons
+       - Natural_Event_Data | Line 125 | Sets page title, icon, and wide layout -  goign to remove once in the final project code
 
 
 # Vizualizations 
@@ -22,18 +29,21 @@ At least 4, one of which is a map:
 [VIZ1] Bar Chart | NEO diameter range
 [VIZ2] Pie Chart | NEO T/F Potentially Hazardous
 [VIZ3] Scatter Plot | NEO Close Approach Dates by Year
-[VIZ 4 MAP] - EONET map
+[VIZ 4 MAP] - EONET map - technically a scatter plot
 
 # Data Analytics Capabilities
 
 At Least six:
 
-[DA4] - Filter by one condition | EONET condition on date
-[DA5] - Filter by more than one map metric | EONET
+[DA1] - Natural_Event_Data | Line 68 | Cleans the EONET JSON data into a data frame
+[DA2] - Natural_Event_Data | Line 117 | Sorts filtered results by distance closest first
+      - sort data .sort_index() | NEO diameter range
+[DA4] - Natural_Event_Data | Line 282 |  Filter by one condition | EONET condition on date
+      - Natural_Event_Data | Line 113 | Filters events to only those within the chosen radius
+[DA5] - Natural_Event_Data | Line 282 | Filter by more than one map metric | EONET
 [DA7] - create new column | NEO diameter range
-[DA2] - sort data .sort_index() | NEO diameter range
 [DA9] - Add new column or perform calculations on DataFrame columns | NEO diameter range
-[DA
+
 
 
 
