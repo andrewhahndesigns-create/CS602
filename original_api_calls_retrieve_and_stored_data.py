@@ -40,8 +40,6 @@ def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
         neos = resp.get("near_earth_objects", [])
         all_neos.extend(neos)
 
-    base_dir = os.path.dirname(__file__)
-    file_path = os.path.join(base_dir, json_file_name)
 
     w_file = open(file_path, "w")
     json.dump({"near_earth_objects": all_neos}, w_file)
@@ -77,8 +75,6 @@ for slug in EONET_CATEGORIES:
             seen_ids.add(event["id"])
             all_events.append(event)
 
-base_dir = os.path.dirname(__file__)
-file_path = os.path.join(base_dir, "natural_events_data.json")
 
 w_file = open(file_path, "w")
 json.dump({"events": all_events}, w_file)
