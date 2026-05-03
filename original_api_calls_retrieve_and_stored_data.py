@@ -12,29 +12,42 @@ so that Eonet could set categories and limits per category.
 import requests
 
 
-# [PY1] A function with two or more parameters,
-# one of which has a default value, called at least twice (once with the default value and once without)
-
 # Function to call api with default api-key and write response JSON to a file
-def get_api_response(url, json_file_name, api_key = "DEMO_KEY"):
+
+
+
+# Function to call API and write response JSON to a file
+def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
     import requests
     import json
+    import os
 
-    params = {
-        "api_key": api_key
-    }
+    all_neos = []
 
-    # requests.get() accepts params argument that takes a dictionary and append it to the url sent out.
-    response = requests.get(url, params=params)
+    # loop through pages (adjust range as needed)
+    for page in range(0, 5):  # ~20 per page → ~100 asteroids total
+        params = {
+            "api_key": api_key,
+            "page": page
+        }
 
-    # [PY5] A dictionary where you write code to access its keys, values, or items
-    resp = response.json() # response is string in JSON format, .json() converts it to a python dictionary
-    print(response.json())
+        response = requests.get(url, params=params)
+        resp = response.json()
 
-    w_file = open(json_file_name, "w")  # w- write
-    json.dump(resp, w_file, indent=2)  # write JSON
+        print(f"Fetched page {page}")
+
+        # collect asteroid data
+        neos = resp.get("near_earth_objects", [])
+        all_neos.extend(neos)
+
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, json_file_name)
+
+    w_file = open(file_path, "w")
+    json.dump({"near_earth_objects": all_neos}, w_file)
     w_file.close()
 
+    print(f"Saved {len(all_neos)} asteroids to {json_file_name}")
 
 # Ran once for Near Earth Object 'Browse' Data
 get_api_response("https://api.nasa.gov/neo/rest/v1/neo/browse", "neo_browse_data.json")
@@ -44,6 +57,7 @@ get_api_response("https://api.nasa.gov/neo/rest/v1/neo/browse", "neo_browse_data
 
 import requests
 import json
+import os
 
 EONET_CATEGORIES = [
     "wildfires", "severeStorms", "volcanoes", "floods",
@@ -63,8 +77,12 @@ for slug in EONET_CATEGORIES:
             seen_ids.add(event["id"])
             all_events.append(event)
 
-with open("natural_events_data.json", "w") as f:
-    json.dump({"events": all_events}, f, indent=2)
+base_dir = os.path.dirname(__file__)
+file_path = os.path.join(base_dir, "natural_events_data.json")
+
+w_file = open(file_path, "w")
+json.dump({"events": all_events}, w_file)
+w_file.close()
 
 print(f"Saved {len(all_events)} events to natural_events_data.json")
 
