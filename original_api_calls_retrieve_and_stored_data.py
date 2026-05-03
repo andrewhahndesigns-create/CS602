@@ -25,7 +25,7 @@ def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
     all_neos = []
 
     # loop through pages (adjust range as needed)
-    for page in range(0, 5):  # ~20 per page → ~100 asteroids total
+    for page in range(0, 5):  # ~20 per page → ~100 asteroids total - you cna probabaly increase the amount of pages but I was testign with 5
         params = {
             "api_key": api_key,
             "page": page
