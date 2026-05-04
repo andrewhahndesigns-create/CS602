@@ -316,7 +316,10 @@ elif page == 'Earth Observatory Natural Event Tracker':
             lon, lat = coords[0], coords[1]
     
             categories = event.get("categories", [])
-            category_title = categories[0]["title"] if categories else "Unknown"
+            if categories:
+                category_title = categories[0]["title"]
+            else:
+                category_title = "Unknown"
     
             rows.append({
                 "title": event.get("title"),
