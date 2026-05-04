@@ -23,7 +23,7 @@ import requests
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
-inport datetime 
+import datetime 
 import os
 import streamlit as st
 import pydeck as pdk  # [VIZ 4 MAP] Extra credit - interactive map
