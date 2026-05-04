@@ -233,6 +233,9 @@ elif page == 'Near Earth Objects':
     # 4d. [VIZ3] LINE CHART
     # ----------------------------
 
+    # Convert index to string
+    year_counts.index = year_counts.index.astype(str)
+
     st.line_chart(year_counts)
 
 #################################################
