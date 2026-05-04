@@ -33,13 +33,13 @@ def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
 
         print(f"Fetched page {page}")
 
-        #Grab the asteroid list from that page and extend list
+         # pull only the array
         neos = resp.get("near_earth_objects", [])
         all_neos.extend(neos)
 
 
     w_file = open(json_file_name, "w")
-    #Save big list as JSON: json.dump(data, file)
+    # Save big list as JSON: json.dump(data, file). You are creating one top-level JSON object (a dict) with a single key
     json.dump({"near_earth_objects": all_neos}, w_file)
     w_file.close()
 
