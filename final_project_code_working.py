@@ -192,7 +192,7 @@ elif page == 'Near Earth Objects':
     # 4b. USER INPUT (SLIDER)
     # ----------------------------
 
-    st.header("Hazardous Asteroid Close Approaches")
+    st.header("Number Hazardous Asteroid Close Approaches by Year")
     # [ST1] Streamlit Slider widget
     # Slider lets user choose number of years
     years_to_scan = st.slider(
