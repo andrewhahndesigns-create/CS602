@@ -44,6 +44,9 @@ page = st.sidebar.radio("Explore NASA Data", sidebar_options)
 
 #################################################
 #################################################
+# page = 'Near Earth Objects'
+# page = 'Earth Observatory Natural Event Tracker'
+
 if page == 'Astronomy Picture of the Day':
     st.header("Astronomy Picture of The Day")
 
@@ -71,8 +74,6 @@ if page == 'Astronomy Picture of the Day':
 
 #################################################
 #################################################
-
-# page = 'Near Earth Objects'
 elif page == 'Near Earth Objects':
 
     st.set_page_config(
