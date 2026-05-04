@@ -73,7 +73,7 @@ for slug in EONET_CATEGORIES:
             all_events.append(event)
 
 
-w_file = open(file_path, "w")
+w_file = open("natural_events_data.json", "w")
 json.dump({"events": all_events}, w_file)
 w_file.close()
 
