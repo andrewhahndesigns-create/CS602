@@ -3,16 +3,11 @@
 '''
 NASA offers numerous free APIs, however, there is a rate limit of 50 requests per IP per day
 for the Demo Key. Group 1 decided to write a function to call our two main APIs, and then store the JSON
-repsonse packet in a file, so we could use that to query from for our streamlit web-application
-
-Upon calling both APIs the Eonet API was discovered to have a limit on its call of data of roughly ~6500 events
-of which were mostly wildfires, inorder to get a more even spread of data the def get_api_response was split
-so that Eonet could set categories and limits per category.
+repsonse packet in a file, so we could use that to query from for our streamlit web-application.
 '''
 
 import requests
 import json
-
 
 # [PY1]
 # Function to call API and write response JSON to a file
@@ -53,6 +48,11 @@ get_api_response("https://api.nasa.gov/neo/rest/v1/neo/browse", "neo_browse_data
 
 
 # New code for Eonet pull
+'''
+The Eonet API has a limit on its call of data of roughly ~6500 events
+of which were mostly wildfires, inorder to get a more even spread of data the def get_api_response was split
+so that Eonet could set categories and limits per category.
+'''
 
 EONET_CATEGORIES = [
     "wildfires", "severeStorms", "volcanoes", "floods",
@@ -78,5 +78,3 @@ json.dump({"events": all_events}, w_file)
 w_file.close()
 
 print(f"Saved {len(all_events)} events to natural_events_data.json")
-
-
