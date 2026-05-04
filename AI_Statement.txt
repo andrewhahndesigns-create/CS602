@@ -3,6 +3,15 @@ SAMANTHA
 I interacted with Chat GPT on the following: 
 
   Section:
+    original api call for data collection.
+  Prompt: 
+    How can I paginate through to get more than 20 asteroids back from the nasa NEOWS api endpoint? Do you know much data is really accessible (it is kind of unclear from their page)? https://api.nasa.gov/
+  Result:
+    GET /neo/rest/v1/neo/browse?page=0
+    
+##################################
+
+  Section:
     Near Earth Objects [VIZ2] PIE CHART
   Prompt:
     haz_counts = df["is_potentially_hazardous_asteroid"].value_counts() | This is a pie chart to show percentage of hazardous asteroids. 
