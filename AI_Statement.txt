@@ -1,6 +1,7 @@
 SAMANTHA
 
 I interacted with Chat GPT on the following: 
+##################################
 
   Section:
     original api call for data collection.
