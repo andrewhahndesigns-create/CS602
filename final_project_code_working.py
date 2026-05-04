@@ -74,6 +74,10 @@ if page == 'Astronomy Picture of the Day':
 
 # page = 'Near Earth Objects'
 elif page == 'Near Earth Objects':
+
+    st.set_page_config(
+        layout="centered"
+    )
     st.header("Near Earth Objects \"Asteroids\"")
 
     # ----------------------------
