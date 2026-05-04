@@ -31,7 +31,7 @@ I interacted with Chat GPT on the following:
     Near Earth Objects [VIZ1] BAR CHART
   Prompt:
     size_counts.plot( kind="bar", title="Asteroid Size Distribution") | How can i make this render best in a streamlit app? 
-  Output (edited then by me, with some title alterations): 
+  Result (output edited by me, with some title alterations): 
 
     # Create figure
     fig2, ax2 = plt.subplots()
