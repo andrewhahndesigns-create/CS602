@@ -10,6 +10,7 @@ of which were mostly wildfires, inorder to get a more even spread of data the de
 so that Eonet could set categories and limits per category.
 '''
 import requests
+import json
 
 
 # Function to call api with default api-key and write response JSON to a file
@@ -18,9 +19,7 @@ import requests
 # [PY1]
 # Function to call API and write response JSON to a file
 def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
-    import requests
-    import json
-    import os
+
 
     all_neos = []
 
@@ -52,10 +51,6 @@ get_api_response("https://api.nasa.gov/neo/rest/v1/neo/browse", "neo_browse_data
 
 
 # New code for Eonet pull
-
-import requests
-import json
-import os
 
 EONET_CATEGORIES = [
     "wildfires", "severeStorms", "volcanoes", "floods",
