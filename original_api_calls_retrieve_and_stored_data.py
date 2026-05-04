@@ -15,32 +15,36 @@ import json
 
 # Function to call api with default api-key and write response JSON to a file
 
+import requests
+import json
+
 
 # [PY1]
 # Function to call API and write response JSON to a file
 def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
 
-
     all_neos = []
 
     # loop through pages (adjust range as needed)
-    for page in range(0, 14):  # ~20 per page → over 250 asteroids total
+    for page in range(0, 9):  # ~20 per page → about 180 asteroids total
         params = {
             "api_key": api_key,
             "page": page
         }
 
         response = requests.get(url, params=params)
+        #Convert API response to Python data
         resp = response.json()
 
         print(f"Fetched page {page}")
 
-        # collect asteroid data
+        #Grab the asteroid list from that page and extend list
         neos = resp.get("near_earth_objects", [])
         all_neos.extend(neos)
 
 
-    w_file = open(file_path, "w")
+    w_file = open(json_file_name, "w")
+    #Save big list as JSON: json.dump(data, file)
     json.dump({"near_earth_objects": all_neos}, w_file)
     w_file.close()
 
@@ -48,6 +52,9 @@ def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
 
 # Ran once for Near Earth Object 'Browse' Data
 get_api_response("https://api.nasa.gov/neo/rest/v1/neo/browse", "neo_browse_data.json")
+
+
+
 
 
 # New code for Eonet pull
