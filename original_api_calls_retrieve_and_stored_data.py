@@ -9,11 +9,6 @@ Upon calling both APIs the Eonet API was discovered to have a limit on its call 
 of which were mostly wildfires, inorder to get a more even spread of data the def get_api_response was split
 so that Eonet could set categories and limits per category.
 '''
-import requests
-import json
-
-
-# Function to call api with default api-key and write response JSON to a file
 
 import requests
 import json
