@@ -28,6 +28,8 @@ import os
 import streamlit as st
 import pydeck as pdk  # [VIZ 4 MAP] Extra credit - interactive map
 from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+
 
 ############### [ST4] Setting the background & Sidebar Radio Buttons
 st.set_page_config(
