@@ -15,12 +15,15 @@ I interacted with Chat GPT on the following:
   Section:
     Near Earth Objects [VIZ2] PIE CHART
   Prompt:
-    haz_counts = df["is_potentially_hazardous_asteroid"].value_counts() | This is a pie chart to show percentage of hazardous asteroids. 
+    I don't think streamlit has a native pie chart function. 
+    haz_counts = df["is_potentially_hazardous_asteroid"].value_counts() 
+    haz_counts.plot(kind="pie")| 
+    
+    This is dataframe that I want to show as a pie chart to show percentage of hazardous asteroids. 
     Can we make it look better in streamlit, what are options to show percentages on the pie and label the axes. 
   Result:
-
     # Create a figure (canvas) and axis (drawing area)
-    fig1, ax1 = plt.subplots()
+    fig1, ax1 = plt.subplots(figsize = (8,4))
 
     # Plot pie chart
     haz_counts.plot(
@@ -33,35 +36,6 @@ I interacted with Chat GPT on the following:
 
     # Display chart in Streamlit
     st.pyplot(fig1)
-
-
-##################################
-
-  Section: 
-    Near Earth Objects [VIZ1] BAR CHART
-  Prompt:
-    size_counts.plot( kind="bar", title="Asteroid Size Distribution") | How can i make this render best in a streamlit app? 
-  Result (output edited by me, with some title alterations): 
-
-    # Create figure
-    fig2, ax2 = plt.subplots()
-
-    # Plot bar chart
-    size_counts.plot(
-        kind="bar",
-        title="Asteroid Size Distribution",
-        ax=ax2
-    )
-
-    # Label axes
-    ax2.set_xlabel("Diameter (miles)")
-    ax2.set_ylabel("Number of Asteroids")
-
-    # Rotate labels so they fit better
-    ax2.tick_params(axis="x", rotation=45)
-
-    # Show in Streamlit
-    st.pyplot(fig2)
 
 
 ##################################
