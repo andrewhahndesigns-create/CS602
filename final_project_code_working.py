@@ -71,6 +71,8 @@ if page == 'Astronomy Picture of the Day':
 
 #################################################
 #################################################
+
+# page = 'Near Earth Objects'
 elif page == 'Near Earth Objects':
     st.header("Near Earth Objects \"Asteroids\"")
 
@@ -98,6 +100,8 @@ elif page == 'Near Earth Objects':
     # Convert list of asteroid dictionaries into a DataFrame
     df = pd.json_normalize(asteroids)
 
+    # df.info()
+    # 
     # # display all columns with .head()
     # pd.set_option('display.max_columns', None)
     # print(df.head())
@@ -107,6 +111,8 @@ elif page == 'Near Earth Objects':
     # ----------------------------
 
     st.header("Estimated Asteroid Size Distribution")
+
+    # print(df["estimated_diameter.miles.estimated_diameter_max"].max())
 
     # Define bins (ranges)
     bins = [0, 10, 20, 30, 40, 50, 60]
