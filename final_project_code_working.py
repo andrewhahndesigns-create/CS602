@@ -496,7 +496,11 @@ elif page == 'Earth Observatory Natural Event Tracker':
     # [PY3] Error checking with try/except — catches file load failures gracefully
     try:
         with st.spinner("Loading events..."):
-            with open("natural_events_data.json", "r") as f:
+            # Get folder where your script lives, build full path to the JSON file
+            base_dir = os.path.dirname(__file__)
+            file_path_eonet = os.path.join(base_dir, "natural_events_data.json")
+
+            with open(file_path_eonet, "r") as f:
                 data = json.load(f)
             all_events = data.get("events", [])
     
