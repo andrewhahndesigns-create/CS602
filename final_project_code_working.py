@@ -75,11 +75,12 @@ if page == 'Astronomy Picture of the Day':
 #################################################
 #################################################
 elif page == 'Near Earth Objects':
+    st.header("Near Earth Objects \"Asteroids\"")
+
 
     st.set_page_config(
         layout="centered"
     )
-    st.header("Near Earth Objects \"Asteroids\"")
 
     # ----------------------------
     # 1. Load saved NASA NEO JSON & CREATE DATAFRAME. Rows = Asteroid | Columns = Atrributes
@@ -106,7 +107,7 @@ elif page == 'Near Earth Objects':
     df = pd.json_normalize(asteroids)
 
     # df.info()
-    # 
+
     # # display all columns with .head()
     # pd.set_option('display.max_columns', None)
     # print(df.head())
@@ -115,7 +116,7 @@ elif page == 'Near Earth Objects':
     # 2. [VIZ1] BAR CHART (SIZE DISTRIBUTION of Max Estimated Miles DIAMETER)
     # ----------------------------
 
-    st.header("Estimated Asteroid Size Distribution")
+    st.header("Distribution of Estimated Asteroid Size (Diameter in Miles)")
 
     # print(df["estimated_diameter.miles.estimated_diameter_max"].max())
 
@@ -140,53 +141,33 @@ elif page == 'Near Earth Objects':
 
     # Count how many asteroids fall into each range as a Series
     # [DA2] sort data .sort_index()
+    # size_counts is a series
     size_counts = df["size_range"].value_counts().sort_index()
 
-    # Create figure
-    fig2, ax2 = plt.subplots()
-
-    # Plot bar chart
-    size_counts.plot(
-        kind="bar",
-        title="Asteroid Size Distribution",
-        ax=ax2
-    )
-
-    # Label axes
-    ax2.set_xlabel("Diameter (miles)")
-    ax2.set_ylabel("Number of Asteroids")
-
-    # Rotate labels so they fit better
-    ax2.tick_params(axis="x", rotation=45)
-
-    # Show in Streamlit
-    st.pyplot(fig2)
+    st.bar_chart(size_counts)
 
     # ----------------------------
     # 3. [VIZ2] PIE CHART (HAZARDOUS VS NOT)
     # ----------------------------
 
-    st.header("Potentially Hazardous Asteroids")
+    st.header("Hazardous vs Not Hazardous Asteroids")
 
-    # Count how many True vs False values
-    # True = hazardous
-    # False = not hazardous
     haz_counts = df["is_potentially_hazardous_asteroid"].value_counts()
+    # haz_counts = df["is_sentry_object"].value_counts()
 
     # Create a figure (canvas) and axis (drawing area)
-    fig1, ax1 = plt.subplots()
+    fig1, ax1 = plt.subplots(figsize=(4,4))
 
     # Plot pie chart
     haz_counts.plot(
         kind="pie",  # pie chart
         autopct="%1.1f%%",  # show percentages
         ylabel="",  # remove default label
-        title="Hazardous vs Not Hazardous",
         ax=ax1  # draw on this axis
     )
 
     # Display chart in Streamlit
-    st.pyplot(fig1)
+    st.pyplot(fig1,use_container_width=False)
 
     # ----------------------------
     # 4a. CREATE CLOSE-APPROACH DATAFRAME
@@ -196,8 +177,9 @@ elif page == 'Near Earth Objects':
     approach_df = pd.json_normalize(
         asteroids,
         record_path="close_approach_data",  # list inside each asteroid
-        meta=["id", "name_limited", "is_potentially_hazardous_asteroid"]
+        meta=["id", "name", "is_potentially_hazardous_asteroid"]
     )
+    # You now get 1 row per approach event in the approach_df dataframe
 
     # Convert string dates → real datetime objects
     approach_df["close_approach_date"] = pd.to_datetime(
@@ -212,77 +194,46 @@ elif page == 'Near Earth Objects':
     # [ST1] Streamlit Slider widget
     # Slider lets user choose number of years
     years_to_scan = st.slider(
-        "Select number of years into the future:",
+        "Select number of years into the future you wish to see on the line chart:",
         min_value=5,  # minimum allowed
-        max_value=40,  # maximum allowed
+        max_value=30,  # maximum allowed
         value=10  # default value
     )
 
     # Get today's date
-    today = pd.Timestamp(date.today())
+    today = pd.Timestamp(datetime.date.today())
+
+    # years_to_scan=30
 
     # Calculate future cutoff date based on slider
     future_end_date = today + pd.DateOffset(years=years_to_scan)
 
+
     # ----------------------------
-    # 4c. FILTER DATA
+    # 4c. PREP DATA FOR LINE CHART
     # ----------------------------
 
-    # Keep only:
-    # - hazardous asteroids
-    # - dates between today and future_end_date
+    # FILTER DATA
+
     future_hazardous = approach_df[
         (approach_df["is_potentially_hazardous_asteroid"] == True) &
         (approach_df["close_approach_date"] >= today) &
         (approach_df["close_approach_date"] <= future_end_date)
-        ].copy()
+        ]
 
-    # Extract year (for x-axis)
+    # Extract year (for grouping)
     future_hazardous["year"] = future_hazardous["close_approach_date"].dt.year
 
-    # Create y-values (counts per year)
-    # groupby groups rows by year
-    # cumcount counts 0,1,2... within each year
-    # +1 makes it start at 1 instead of 0
-    future_hazardous["y"] = future_hazardous.groupby("year").cumcount() + 1
+    # Count number of hazardous asteroids per year as a Series
+    year_counts = future_hazardous["year"].value_counts().sort_index()
+
+    # print(year_counts)
 
     # ----------------------------
-    # 4d. [VIZ3] SCATTER PLOT
+    # 4d. [VIZ3] LINE CHART
     # ----------------------------
 
-    fig3, ax3 = plt.subplots(figsize=(10, 6))
-
-    # Plot points
-    ax3.scatter(
-        future_hazardous["year"],  # x = year
-        future_hazardous["y"]  # y = count
-    )
-
-    # Add labels (asteroid names)
-    for _, row in future_hazardous.iterrows():
-        ax3.text(
-            row["year"],
-            row["y"],
-            row["name_limited"],
-            fontsize=8
-        )
-
-    # Axis labels and title
-    ax3.set_xlabel("Year")
-    ax3.set_ylabel("Number of Hazardous Asteroids")
-    ax3.set_title(f"Hazardous Asteroid Approaches (Next {years_to_scan} Years)")
-
-    # Show all years on x-axis
-    ax3.set_xticks(range(today.year, today.year + years_to_scan + 1))
-
-    # Limit y-axis to 0–5
-    ax3.set_yticks(range(0, 6))
-    ax3.set_ylim(0, 3)
-
-    fig3.tight_layout()
-
-    # Show chart in Streamlit
-    st.pyplot(fig3)
+    st.line_chart(year_counts)
 
 #################################################
 #################################################
