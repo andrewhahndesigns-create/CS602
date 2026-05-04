@@ -7,12 +7,15 @@ I interacted with Chat GPT on the following:
     original api call for data collection.
 
   Prompt: 
-    How can I paginate through to get more than 20 asteroids back from the nasa NEOWS api endpoint? Do you know much data is really accessible (it is kind of unclear from their page)? https://api.nasa.gov/
+    How can I paginate through to get more than 20 asteroids back from the nasa NEOWS api endpoint? 
+    Do you know much data is really accessible (it is kind of unclear from their page)? https://api.nasa.gov/
   Result:
     GET /neo/rest/v1/neo/browse?page=0
 
+################
   Prompt:
-    When I get back each response, I want it all saved in the file under one Key "near_earth_objects". I dont think I'll be able to read and use the data is the responses are just saved one after another with dupe keys.
+    When I get back each response, I want it all saved in the file under one Key "near_earth_objects". 
+    I dont think I'll be able to read, and use the data, if the responses are just saved one after another with dupe keys.
   Result: 
         # pull only the array
         neos = resp.get("near_earth_objects", [])
@@ -22,6 +25,7 @@ I interacted with Chat GPT on the following:
 
   Section:
     Near Earth Objects [VIZ2] PIE CHART
+
   Prompt:
     I don't think streamlit has a native pie chart function. 
     haz_counts = df["is_potentially_hazardous_asteroid"].value_counts() 
@@ -87,8 +91,21 @@ I interacted with Chat GPT on the following:
     1          2026-03-10  1  Asteroid A                               True
 
 
+################
+  Prompt:
+    # Count number of hazardous asteroids per year as a Series 
+    year_counts = future_hazardous["year"].value_counts().sort_index() 
+    st.line_chart(year_counts) 
 
+    My line chart x-axis is showing the years as numbers with commas, but I want the years to display as strings
+  
+  Results:
+    year_counts = future_hazardous["year"].value_counts().sort_index()
 
+    # Convert index to string
+    year_counts.index = year_counts.index.astype(str)
+    
+    st.line_chart(year_counts)
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
