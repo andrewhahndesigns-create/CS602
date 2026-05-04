@@ -64,6 +64,47 @@ I interacted with Chat GPT on the following:
     st.pyplot(fig2)
 
 
+##################################
+
+  Section:
+    [VIZ3] 
+
+  Prompt:
+    I have nested data that looks like this: 
+      asteroids = [ 
+      { "id": "1", 
+      "name": "Asteroid A", 
+      "is_potentially_hazardous_asteroid": True, 
+      "close_approach_data": 
+          [ {"close_approach_date": "2025-01-01"}, {"close_approach_date": "2026-03-10"} ] }, 
+      ... ] 
+      
+    How can I grab the various close approach dates and make a new dataframe from them?
+
+  Result:
+    Option 1: Using pd.json_normalize (best approach)
+    import pandas as pd
+    
+    df = pd.json_normalize(
+        asteroids,
+        record_path="close_approach_data",
+        meta=["id", "name", "is_potentially_hazardous_asteroid"]
+    )
+    
+    print(df)
+    
+    What this does:
+    
+    record_path → tells pandas to expand each close_approach_data entry into its own row
+    meta → keeps the parent asteroid info alongside each row
+    
+    Result:
+    
+      close_approach_date id        name  is_potentially_hazardous_asteroid
+    0          2025-01-01  1  Asteroid A                               True
+    1          2026-03-10  1  Asteroid A                               True
+
+
 
 
 
