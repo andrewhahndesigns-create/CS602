@@ -243,398 +243,298 @@ elif page == 'Earth Observatory Natural Event Tracker':
     # [PY5] Dictionary - maps category names to their EONET API slugs,
     # accessed throughout the code using keys and values
     CATEGORY_OPTIONS = {
-        "Wildfires": "wildfires",
-        "Severe Storms": "severeStorms",
-        "Volcanoes": "volcanoes",
-        "Floods": "floods",
-        "Landslides": "landslides",
-        "Snow": "snow",
-        "Dust and Haze": "dustHaze",
-        "Sea and Lake Ice": "seaLakeIce",
-        "Water Color": "waterColor",
-        "Temperature Extremes": "tempExtremes",
-    }
-    
-    
-    # [PY2] Function that returns more than one value (latitude AND longitude)
-    def geocode_location(place_name):
-        geolocator = Nominatim(user_agent="eonet_global_event_map")
-        location = geolocator.geocode(place_name)
-    
-        if location is None:
-            return None, None
-    
-        return location.latitude, location.longitude
-    
-    
-    def haversine_km(lat1, lon1, lat2, lon2): # AI used here see section 1 on AI use
-        radius_earth_km = 6371
-    
-        lat1, lon1, lat2, lon2 = map(
-            math.radians,
-            [lat1, lon1, lat2, lon2]
-        )
-    
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-    
-        a = (
+    "Wildfires": "wildfires",
+    "Severe Storms": "severeStorms",
+    "Volcanoes": "volcanoes",
+    "Floods": "floods",
+    "Landslides": "landslides",
+    "Snow": "snow",
+    "Dust and Haze": "dustHaze",
+    "Sea and Lake Ice": "seaLakeIce",
+    "Water Color": "waterColor",
+    "Temperature Extremes": "tempExtremes",
+}
+
+
+# [PY2] Function that returns more than one value (latitude AND longitude)
+def geocode_location(place_name):
+    geolocator = Nominatim(user_agent="eonet_global_event_map")
+    location = geolocator.geocode(place_name)
+
+    if location is None:
+        return None, None
+
+    return location.latitude, location.longitude
+
+
+def haversine_km(lat1, lon1, lat2, lon2):  # AI used here see section 1 on AI use
+    radius_earth_km = 6371
+
+    lat1, lon1, lat2, lon2 = map(
+        math.radians,
+        [lat1, lon1, lat2, lon2]
+    )
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = (
             math.sin(dlat / 2) ** 2
             + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        )
-    
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        return radius_earth_km * c
-    
-    
-    def get_latest_geometry(event):
-        geometry = event.get("geometry", [])
-    
-        if not geometry:
-            return None
-    
-        return geometry[-1]
-    
-    
-    
-    # [DA1] Cleans and manipulates raw NASA JSON into a structured DataFrame
-    def parse_events(events):
-        rows = []
-    
-        # [DA8] Iterating through every event row to extract and reshape data
-        for event in events:
-            latest_geometry = get_latest_geometry(event)
-    
-            if not latest_geometry:
-                continue
-    
-            coords = latest_geometry.get("coordinates")
-    
-            if not coords or len(coords) < 2:
-                continue
-    
-            lon, lat = coords[0], coords[1]
-    
-            categories = event.get("categories", [])
-            if categories:
-                category_title = categories[0]["title"]
-            else:
-                category_title = "Unknown"
-    
-            rows.append({
-                "title": event.get("title"),
-                "category": category_title,
-                "date": latest_geometry.get("date", "Unknown"),
-                "latitude": lat,
-                "longitude": lon,
-                "distance_km": None,
-                "link": event.get("link")
-            })
-    
-        return pd.DataFrame(rows)
-    
-    
-    def filter_by_location(df, user_lat, user_lon, radius_km):
-        filtered = df.copy()
-    
-        # [DA9] Adding a new calculated column — distance from the user's location
-        distances = []
-        for i in range(len(filtered)):
-            row = filtered.iloc[i]
-            dist = haversine_km(user_lat, user_lon, row["latitude"], row["longitude"])
-            distances.append(dist)
-        filtered["distance_km"] = distances
-    
-        # [DA4] Filter data by one condition — keep only events within the radius
-        filtered = filtered[filtered["distance_km"] <= radius_km].copy()
-        filtered["distance_km"] = filtered["distance_km"].round(1)
-    
-        # [DA2] Sort data in ascending order by distance from user location
-        return filtered.sort_values(by="distance_km")
-    
-    
-    # ── Page setup ────────────────────────────────────────────────────────────────
-    
-    #section likely to be removed based on Final project code
-    
-    # [ST4] Customized page design — wide layout, custom icon
-    st.set_page_config(
-        page_title="EONET Global Event Map",
-        page_icon="🌎",
-        layout="wide"
     )
-    
-    st.title("🌎 NASA EONET Global Natural Event Map")
-    st.caption("Explore global natural events first, then filter by location.")
-    
-    # ── Metrics placeholder — renders here, filled after data loads ───────────────
-    metrics_container = st.container()
-    
-    st.divider()
-    
-    # ── Filters — one row, three sections with breathing room ─────────────────────
-    
-    time_col, location_col, category_col = st.columns([1, 1, 2], gap="large")
-    
-    # ── Time filter ───────────────────────────────────────────────────────────────
-    
-    with time_col:
-        st.markdown("#### Time Filter")
-    
-        # [ST1] Radio button widget
-        time_mode = st.radio(
-            "Filter by",
-            ["Look back (days)", "Date range"],
-            horizontal=True
-        )
-    
-        if time_mode == "Look back (days)":
-            # [ST2] Checkbox widget
-            all_time = st.checkbox("All time", value=True)
-    
-            if all_time:
-                days = None
-            else:
-                # [ST3] Slider widget
-                days = st.slider(
-                    "Look back period",
-                    min_value=1,
-                    max_value=365,
-                    value=365
-                )
-    
-            start_date = None
-            end_date = None
-    
-        else:
-            # [ST2] Date input widget — calendar-based range picker
-            date_range = st.date_input(
-                "Select date range",
-                value=(
-                    datetime.date.today() - datetime.timedelta(days=30),
-                    datetime.date.today()
-                ),
-                min_value=datetime.date(2015, 1, 1),
-                max_value=datetime.date.today()
-            )
-    
-            if isinstance(date_range, tuple) and len(date_range) == 2:
-                start_date, end_date = date_range
-            else:
-                st.info("Please select both a start and end date.")
-                st.stop()
-    
-            days = None
-    
-    # ── Location search ───────────────────────────────────────────────────────────
-    
-    with location_col:
-        st.markdown("#### Location Search")
-    
-        # [ST3] Text input widget
-        location_input = st.text_input(
-            "Search near a location",
-            placeholder="Example: Tokyo, Japan"
-        )
-    
-        # [ST3] Slider widget
-        radius_km = st.slider(
-            "Radius around location (km)",
-            min_value=50,
-            max_value=3000,
-            value=500,
-            step=50
-        )
-    
-        apply_location_filter = st.button("Search This Area")
-    
-    # ── Category toggles ──────────────────────────────────────────────────────────
-    
-    with category_col:
-        st.markdown("#### Event Categories")
-    
-        btn_col1, btn_col2, *_ = st.columns([1, 1, 3])
-        select_all = btn_col1.button("Select all", use_container_width=True)
-        clear_all = btn_col2.button("Clear all", use_container_width=True)
-    
-        st.write("")
-    
-        for label in CATEGORY_OPTIONS:
-            key = f"cat_{label}"
-            if key not in st.session_state:
-                st.session_state[key] = True
-    
-        if select_all:
-            for label in CATEGORY_OPTIONS:
-                st.session_state[f"cat_{label}"] = True
-    
-        if clear_all:
-            for label in CATEGORY_OPTIONS:
-                st.session_state[f"cat_{label}"] = False
-    
-        # [ST2] Toggle widgets — two per row across five rows
-        selected_labels = []
-        toggle_cols = st.columns(2)
-        for i, label in enumerate(CATEGORY_OPTIONS):
-            key = f"cat_{label}"
-            toggled = toggle_cols[i % 2].toggle(
-                label,
-                value=st.session_state[key],
-                key=key
-            )
-            if toggled:
-                selected_labels.append(label)
-    
-        # [PY4] List comprehension — translates selected labels into API slugs
-        selected_slugs = [CATEGORY_OPTIONS[label] for label in selected_labels]
-    
-        if not selected_labels:
-            st.warning("Select at least one category.")
-            st.stop()
-    
-    st.divider()
-    
-    # ── Load and display ──────────────────────────────────────────────────────────
-    
-    # [PY3] Error checking with try/except — catches file load failures gracefully
-    try:
-        with st.spinner("Loading events..."):
-            # Get folder where your script lives, build full path to the JSON file
-            base_dir = os.path.dirname(__file__)
-            file_path_eonet = os.path.join(base_dir, "natural_events_data.json")
 
-            with open(file_path_eonet, "r") as f:
-                data = json.load(f)
-            all_events = data.get("events", [])
-    
-            # Filter by selected categories
-            selected_titles = set(selected_labels)
-            events = [
-                e for e in all_events
-                if any(c["title"] in selected_titles for c in e.get("categories", []))
-            ] if selected_labels else all_events
-    
-            df = parse_events(events)
-    
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return radius_earth_km * c
+
+
+def get_latest_geometry(event):
+    geometry = event.get("geometry", [])
+
+    if not geometry:
+        return None
+
+    return geometry[-1]
+
+
+# [DA1] Cleans and manipulates raw NASA JSON into a structured DataFrame
+def parse_events(events):
+    rows = []
+
+    # [DA8] Iterating through every event row to extract and reshape data
+    for event in events:
+        latest_geometry = get_latest_geometry(event)
+
+        if not latest_geometry:
+            continue
+
+        coords = latest_geometry.get("coordinates")
+
+        if not coords or len(coords) < 2:
+            continue
+
+        lon, lat = coords[0], coords[1]
+
+        categories = event.get("categories", [])
+        category_title = categories[0]["title"] if categories else "Unknown"
+
+        rows.append({
+            "title": event.get("title"),
+            "category": category_title,
+            "date": latest_geometry.get("date", "Unknown"),
+            "latitude": lat,
+            "longitude": lon,
+            "distance_km": None,
+            "link": event.get("link")
+        })
+
+    return pd.DataFrame(rows)
+
+
+def filter_by_location(df, user_lat, user_lon, radius_km):
+    filtered = df.copy()
+
+    # [DA9] Adding a new calculated column — distance from the user's location
+    distances = []
+    for i in range(len(filtered)):
+        row = filtered.iloc[i]
+        dist = haversine_km(user_lat, user_lon, row["latitude"], row["longitude"])
+        distances.append(dist)
+    filtered["distance_km"] = distances
+
+    # [DA4] Filter data by one condition — keep only events within the radius
+    filtered = filtered[filtered["distance_km"] <= radius_km].copy()
+    filtered["distance_km"] = filtered["distance_km"].round(1)
+
+    # [DA2] Sort data in ascending order by distance from user location
+    return filtered.sort_values(by="distance_km")
+
+
+# ── Page setup ────────────────────────────────────────────────────────────────
+
+# section likely to be removed based on Final project code
+
+# [ST4] Customized page design — wide layout, custom icon
+st.set_page_config(
+    page_title="EONET Global Event Map",
+    page_icon="🌎",
+    layout="wide"
+)
+
+st.title("🌎 NASA EONET Global Natural Event Map")
+st.caption("Explore global natural events first, then filter by location.")
+
+# ── Metrics placeholder — renders here, filled after data loads ───────────────
+metrics_container = st.container()
+
+st.divider()
+
+# ── Filters — one row, three sections with breathing room ─────────────────────
+
+location_col, category_col = st.columns([1, 1, 2], gap="large")
+
+# ── Location search ───────────────────────────────────────────────────────────
+
+with location_col:
+    st.markdown("#### Location Search")
+
+    # [ST3] Text input widget
+    location_input = st.text_input(
+        "Search near a location",
+        placeholder="Example: Tokyo, Japan"
+    )
+
+    # [ST3] Slider widget
+    radius_km = st.slider(
+        "Radius around location (km)",
+        min_value=50,
+        max_value=3000,
+        value=500,
+        step=50
+    )
+
+    apply_location_filter = st.button("Search This Area")
+
+# ── Category toggles ──────────────────────────────────────────────────────────
+
+with category_col:
+    st.markdown("#### Event Categories")
+
+    btn_col1, btn_col2, *_ = st.columns([1, 1, 3])
+    select_all = btn_col1.button("Select all", use_container_width=True)
+    clear_all = btn_col2.button("Clear all", use_container_width=True)
+
+    st.write("")
+
+    for label in CATEGORY_OPTIONS:
+        key = f"cat_{label}"
+        if key not in st.session_state:
+            st.session_state[key] = True
+
+    if select_all:
+        for label in CATEGORY_OPTIONS:
+            st.session_state[f"cat_{label}"] = True
+
+    if clear_all:
+        for label in CATEGORY_OPTIONS:
+            st.session_state[f"cat_{label}"] = False
+
+    # [ST2] Toggle widgets — two per row across five rows
+    selected_labels = []
+    toggle_cols = st.columns(2)
+    for i, label in enumerate(CATEGORY_OPTIONS):
+        key = f"cat_{label}"
+        toggled = toggle_cols[i % 2].toggle(
+            label,
+            value=st.session_state[key],
+            key=key
+        )
+        if toggled:
+            selected_labels.append(label)
+
+    # [PY4] List comprehension — translates selected labels into API slugs
+    selected_slugs = [CATEGORY_OPTIONS[label] for label in selected_labels]
+
+    if not selected_labels:
+        st.warning("Select at least one category.")
+        st.stop()
+
+st.divider()
+
+# ── Load and display ──────────────────────────────────────────────────────────
+
+# [PY3] Error checking with try/except — catches file load failures gracefully
+try:
+    with st.spinner("Loading events..."):
+        basedir = os.path.dirname(__file__)
+        file_path = os.path.join(basedir, "natural_events_data.json")
+
+        r_file = open(file_path, "r")
+        data_resp = json.load(r_file)
+        file.close()
+
+        all_events = data.get("events", [])
+
+        # Filter by selected categories
+        selected_titles = set(selected_labels)
+        events = [
+            e for e in all_events
+            if any(c["title"] in selected_titles for c in e.get("categories", []))
+        ] if selected_labels else all_events
+
         df = parse_events(events)
-    
-        # [DA4] Convert date column and filter by the selected time range
-        df["date"] = pd.to_datetime(df["date"], errors="coerce", utc=True)
-    
-        if start_date and end_date:
-            df = df[
-                (df["date"] >= pd.Timestamp(start_date, tz="UTC")) &
-                (df["date"] <= pd.Timestamp(end_date, tz="UTC"))
-                ]
-        elif days:
-            cutoff = pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=days)
-            df = df[df["date"] >= cutoff]
-    
-        if df.empty:
-            st.info("No events found for the selected filters.")
+
+    df = parse_events(events)
+
+    if df.empty:
+        st.info("No events found for the selected filters.")
+        st.stop()
+
+    display_df = df.copy()
+    user_lat = None
+    user_lon = None
+
+    if apply_location_filter and location_input:
+        # [PY2] geocode_location() returns two values — unpacked into lat and lon
+        user_lat, user_lon = geocode_location(location_input)
+
+        if user_lat is None:
+            st.error("Could not find that location.")
             st.stop()
-    
-        display_df = df.copy()
-        user_lat = None
-        user_lon = None
-    
-        if apply_location_filter and location_input:
-            # [PY2] geocode_location() returns two values — unpacked into lat and lon
-            user_lat, user_lon = geocode_location(location_input)
-    
-            if user_lat is None:
-                st.error("Could not find that location.")
-                st.stop()
-    
-            display_df = filter_by_location(df, user_lat, user_lon, radius_km)
-    
-            if display_df.empty:
-                st.info("No events found near that location.")
-                st.stop()
-    
-            st.success(
-                f"Showing {len(display_df)} events within {radius_km} km of {location_input}."
-            )
-    
-        # ── Metrics — filled into the placeholder defined above the filters ───────
-    
-        with metrics_container:
-            all_cols = st.columns(len(selected_labels) + 1)
-            all_cols[0].metric("Total Events", len(display_df))
-    
-            for i, cat in enumerate(selected_labels):
-                count = len(display_df[display_df["category"] == cat])
-                all_cols[i + 1].metric(cat, count)
-    
-        # ── Map ───────────────────────────────────────────────────────────────────
-    
-        # [VIZ 4 MAP] Interactive geographic map — extra credit
-        st.subheader("Global Event Map")
-    
-        event_layer = pdk.Layer(
-            "ScatterplotLayer",
-            data=display_df,
-            get_position="[longitude, latitude]",
-            get_radius=40000,
-            get_fill_color=[255, 100, 100, 200],
-            pickable=True,
-            opacity=0.75,
-            stroked=True,
-            filled=True,
+
+        display_df = filter_by_location(df, user_lat, user_lon, radius_km)
+
+        if display_df.empty:
+            st.info("No events found near that location.")
+            st.stop()
+
+        st.success(
+            f"Showing {len(display_df)} events within {radius_km} km of {location_input}."
         )
-    
-        layers = [event_layer]
-    
-        if user_lat is not None and user_lon is not None:
-            user_df = pd.DataFrame([{
-                "latitude": user_lat,
-                "longitude": user_lon,
-                "title": location_input,
-                "category": "Search Location",
-                "date": "",
-                "distance_km": "",
-            }])
-    
-            user_layer = pdk.Layer(
-                "ScatterplotLayer",
-                data=user_df,
-                get_position="[longitude, latitude]",
-                get_radius=80000,
-                get_fill_color=[0, 180, 255, 220],
-                pickable=True,
-                stroked=True,
-                filled=True,
-            )
-    
-            layers.append(user_layer)
-    
-            view_state = pdk.ViewState(
-                latitude=user_lat,
-                longitude=user_lon,
-                zoom=4,
-                pitch=0,
-            )
-        else:
-            view_state = pdk.ViewState(
-                latitude=15,
-                longitude=0,
-                zoom=1.3,
-                pitch=0,
-            )
-    
-        st.pydeck_chart(
-            pdk.Deck(
-                initial_view_state=view_state,
-                layers=layers,
-                tooltip={
-                    "text": "{title}\nCategory: {category}\nDate: {date}\nDistance: {distance_km} km"
-                }
-            ),
-            use_container_width=True
-        )
-    
-    except FileNotFoundError:
-        st.error("Could not find natural_events_data.json — make sure the file is in the same folder as your script.")
-    
-        
-    
+
+    # ── Metrics — filled into the placeholder defined above the filters ───────
+
+    with metrics_container:
+        all_cols = st.columns(len(selected_labels) + 1)
+        all_cols[0].metric("Total Events", len(display_df))
+
+        for i, cat in enumerate(selected_labels):
+            count = len(display_df[display_df["category"] == cat])
+            all_cols[i + 1].metric(cat, count)
+
+    # ── Map ───────────────────────────────────────────────────────────────────
+
+    # [VIZ 4 MAP] Interactive geographic map — extra credit
+    st.subheader("Global Event Map")
+
+    event_layer = pdk.Layer(
+        "ScatterplotLayer",
+        data=display_df,
+        get_position="[longitude, latitude]",
+        get_radius=40000,
+        get_fill_color=[255, 100, 100, 200],
+        pickable=True,
+        filled=True,
+    )
+
+    layers = [event_layer]
+
+    view_state = pdk.ViewState(
+        latitude=15,
+        longitude=0,
+         zoom=1.3,
+         pitch=0,
+    )
+
+    st.pydeck_chart(
+        pdk.Deck(
+            initial_view_state=view_state,
+            layers=layers,
+            tooltip={
+                "text": "{title}\nCategory: {category}\nDate: {date}\nDistance: {distance_km} km"
+            }
+        ),
+        use_container_width=True
+    )
+
+except FileNotFoundError:
+    st.error("Could not find natural_events_data.json — make sure the file is in the same folder as your script.")
