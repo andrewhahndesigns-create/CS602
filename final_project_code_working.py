@@ -258,7 +258,6 @@ elif page == 'Earth Observatory Natural Event Tracker':
     "Temperature Extremes": "tempExtremes",
 }
 
-
 # [PY2] Function that returns more than one value (latitude AND longitude)
 def geocode_location(place_name):
     geolocator = Nominatim(user_agent="eonet_global_event_map")
@@ -269,27 +268,6 @@ def geocode_location(place_name):
 
     return location.latitude, location.longitude
 
-
-def haversine_km(lat1, lon1, lat2, lon2):  # AI used here see section 1 on AI use
-    radius_earth_km = 6371
-
-    lat1, lon1, lat2, lon2 = map(
-        math.radians,
-        [lat1, lon1, lat2, lon2]
-    )
-
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-
-    a = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-    )
-
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return radius_earth_km * c
-
-
 def get_latest_geometry(event):
     geometry = event.get("geometry", [])
 
@@ -297,7 +275,6 @@ def get_latest_geometry(event):
         return None
 
     return geometry[-1]
-
 
 # [DA1] Cleans and manipulates raw NASA JSON into a structured DataFrame
 def parse_events(events):
@@ -332,7 +309,6 @@ def parse_events(events):
 
     return pd.DataFrame(rows)
 
-
 def filter_by_location(df, user_lat, user_lon, radius_km):
     filtered = df.copy()
 
@@ -340,40 +316,25 @@ def filter_by_location(df, user_lat, user_lon, radius_km):
     distances = []
     for i in range(len(filtered)):
         row = filtered.iloc[i]
-        dist = haversine_km(user_lat, user_lon, row["latitude"], row["longitude"])
+        dist = geodesic((user_lat, user_lon), (row["latitude"], row["longitude"])).km
         distances.append(dist)
     filtered["distance_km"] = distances
+    filtered["distance_km"] = filtered["distance_km"].round(1)
 
     # [DA4] Filter data by one condition — keep only events within the radius
-    filtered = filtered[filtered["distance_km"] <= radius_km].copy()
-    filtered["distance_km"] = filtered["distance_km"].round(1)
+    filtered = filtered[filtered["distance_km"] <= radius_km]
 
     # [DA2] Sort data in ascending order by distance from user location
     return filtered.sort_values(by="distance_km")
-
-
-# ── Page setup ────────────────────────────────────────────────────────────────
-
-# section likely to be removed based on Final project code
-
-# [ST4] Customized page design — wide layout, custom icon
-st.set_page_config(
-    page_title="EONET Global Event Map",
-    page_icon="🌎",
-    layout="wide"
-)
-
-st.title("🌎 NASA EONET Global Natural Event Map")
-st.caption("Explore global natural events first, then filter by location.")
 
 # ── Metrics placeholder — renders here, filled after data loads ───────────────
 metrics_container = st.container()
 
 st.divider()
 
-# ── Filters — one row, three sections with breathing room ─────────────────────
+# ── Filters — one row, two sections ─────────────────────
 
-location_col, category_col = st.columns([1, 1, 2], gap="large")
+location_col, category_col = st.columns([1, 2], gap="large")
 
 # ── Location search ───────────────────────────────────────────────────────────
 
@@ -402,39 +363,12 @@ with location_col:
 with category_col:
     st.markdown("#### Event Categories")
 
-    btn_col1, btn_col2, *_ = st.columns([1, 1, 3])
-    select_all = btn_col1.button("Select all", use_container_width=True)
-    clear_all = btn_col2.button("Clear all", use_container_width=True)
-
-    st.write("")
-
-    for label in CATEGORY_OPTIONS:
-        key = f"cat_{label}"
-        if key not in st.session_state:
-            st.session_state[key] = True
-
-    if select_all:
-        for label in CATEGORY_OPTIONS:
-            st.session_state[f"cat_{label}"] = True
-
-    if clear_all:
-        for label in CATEGORY_OPTIONS:
-            st.session_state[f"cat_{label}"] = False
-
-    # [ST2] Toggle widgets — two per row across five rows
     selected_labels = []
     toggle_cols = st.columns(2)
     for i, label in enumerate(CATEGORY_OPTIONS):
-        key = f"cat_{label}"
-        toggled = toggle_cols[i % 2].toggle(
-            label,
-            value=st.session_state[key],
-            key=key
-        )
-        if toggled:
+        if toggle_cols[i % 2].toggle(label, value=True):
             selected_labels.append(label)
 
-    # [PY4] List comprehension — translates selected labels into API slugs
     selected_slugs = [CATEGORY_OPTIONS[label] for label in selected_labels]
 
     if not selected_labels:
@@ -453,9 +387,9 @@ try:
 
         r_file = open(file_path, "r")
         data_resp = json.load(r_file)
-        file.close()
+        r_file.close()
 
-        all_events = data.get("events", [])
+        all_events = data_resp.get("events", [])
 
         # Filter by selected categories
         selected_titles = set(selected_labels)
