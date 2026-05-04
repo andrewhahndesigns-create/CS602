@@ -1,5 +1,7 @@
 import requests
 
+# Example query
+# https://api.nasa.gov/neo/rest/v1/neo/browse?api_key=DEMO_KEY
 
 url = "https://api.nasa.gov/neo/rest/v1/neo/browse"
 params = {
