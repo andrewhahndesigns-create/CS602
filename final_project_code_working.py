@@ -294,7 +294,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
             if not coords or len(coords) < 2:
                 continue
     
-            lon, lat = coords[0], coords[1]
+            lon, lat = coords[:2]
     
             categories = event.get("categories", [])
             category_title = categories[0]["title"] if categories else "Unknown"
@@ -313,19 +313,18 @@ elif page == 'Earth Observatory Natural Event Tracker':
     
     def filter_by_location(df, user_lat, user_lon, radius_km):
         filtered = df.copy()
-    
+
         # [DA9] Adding a new calculated column — distance from the user's location
         distances = []
-        for i in range(len(filtered)):
-            row = filtered.iloc[i]
+        for _, row in filtered.iterrows():
             dist = geodesic((user_lat, user_lon), (row["latitude"], row["longitude"])).km
             distances.append(dist)
         filtered["distance_km"] = distances
         filtered["distance_km"] = filtered["distance_km"].round(1)
-    
+
         # [DA4] Filter data by one condition — keep only events within the radius
         filtered = filtered[filtered["distance_km"] <= radius_km]
-    
+
         # [DA2] Sort data in ascending order by distance from user location
         return filtered.sort_values(by="distance_km")
     
@@ -370,9 +369,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
         for i, label in enumerate(CATEGORY_OPTIONS):
             if toggle_cols[i % 2].toggle(label, value=True):
                 selected_labels.append(label)
-    
-        selected_slugs = [CATEGORY_OPTIONS[label] for label in selected_labels]
-    
+
         if not selected_labels:
             st.warning("Select at least one category.")
             st.stop()
@@ -383,97 +380,93 @@ elif page == 'Earth Observatory Natural Event Tracker':
     
     # [PY3] Error checking with try/except — catches file load failures gracefully
     try:
-        with st.spinner("Loading events..."):
-            basedir = os.path.dirname(__file__)
-            file_path = os.path.join(basedir, "natural_events_data.json")
+
+        basedir = os.path.dirname(__file__)
+        file_path = os.path.join(basedir, "natural_events_data.json")
     
-            r_file = open(file_path, "r")
-            data_resp = json.load(r_file)
-            r_file.close()
+        r_file = open(file_path, "r")
+        data_resp = json.load(r_file)
+        r_file.close()
     
-            all_events = data_resp.get("events", [])
-    
-            # Filter by selected categories
-            selected_titles = set(selected_labels)
-            events = [
-                e for e in all_events
-                if any(c["title"] in selected_titles for c in e.get("categories", []))
-            ] if selected_labels else all_events
-    
-            df = parse_events(events)
-    
-        df = parse_events(events)
-    
-        if df.empty:
-            st.info("No events found for the selected filters.")
-            st.stop()
-    
-        display_df = df.copy()
-        user_lat = None
-        user_lon = None
-    
-        if apply_location_filter and location_input:
-            # [PY2] geocode_location() returns two values — unpacked into lat and lon
-            user_lat, user_lon = geocode_location(location_input)
-    
-            if user_lat is None:
-                st.error("Could not find that location.")
-                st.stop()
-    
-            display_df = filter_by_location(df, user_lat, user_lon, radius_km)
-    
-            if display_df.empty:
-                st.info("No events found near that location.")
-                st.stop()
-    
-            st.success(
-                f"Showing {len(display_df)} events within {radius_km} km of {location_input}."
-            )
-    
-        # ── Metrics — filled into the placeholder defined above the filters ───────
-    
-        with metrics_container:
-            all_cols = st.columns(len(selected_labels) + 1)
-            all_cols[0].metric("Total Events", len(display_df))
-    
-            for i, cat in enumerate(selected_labels):
-                count = len(display_df[display_df["category"] == cat])
-                all_cols[i + 1].metric(cat, count)
-    
-        # ── Map ───────────────────────────────────────────────────────────────────
-    
-        # [VIZ 4 MAP] Interactive geographic map — extra credit
-        st.subheader("Global Event Map")
-    
-        event_layer = pdk.Layer(
-            "ScatterplotLayer",
-            data=display_df,
-            get_position="[longitude, latitude]",
-            get_radius=40000,
-            get_fill_color=[255, 100, 100, 200],
-            pickable=True,
-            filled=True,
-        )
-    
-        layers = [event_layer]
-    
-        view_state = pdk.ViewState(
-            latitude=15,
-            longitude=0,
-             zoom=1.3,
-             pitch=0,
-        )
-    
-        st.pydeck_chart(
-            pdk.Deck(
-                initial_view_state=view_state,
-                layers=layers,
-                tooltip={
-                    "text": "{title}\nCategory: {category}\nDate: {date}\nDistance: {distance_km} km"
-                }
-            ),
-            use_container_width=True
-        )
-    
+        all_events = data_resp.get("events", []) # get rid of?
+
     except FileNotFoundError:
-        st.error("Could not find natural_events_data.json — make sure the file is in the same folder as your script.")
+        st.error("Could not find natural_events_data.json; make sure the file is in the same folder as your script.")
+        st.stop()
+
+    with st.spinner("Loading events..."):
+        # Filter by selected categories
+        selected_titles = set(selected_labels)
+        events = [
+            e for e in all_events
+            if any(c["title"] in selected_titles for c in e.get("categories", []))
+        ] if selected_labels else all_events
+
+        df = parse_events(events)
+
+    if df.empty:
+        st.info("No events found for the selected filters.")
+        st.stop()
+
+    display_df = df.copy()
+
+    if apply_location_filter and location_input:
+        # [PY2] geocode_location() returns two values — unpacked into lat and lon
+        user_lat, user_lon = geocode_location(location_input)
+
+        if user_lat is None:
+            st.error("Could not find that location.")
+            st.stop()
+
+        display_df = filter_by_location(df, user_lat, user_lon, radius_km)
+
+        if display_df.empty:
+            st.info("No events found near that location.")
+            st.stop()
+
+        st.success(
+            f"Showing {len(display_df)} events within {radius_km} km of {location_input}."
+        )
+
+    # ── Metrics — filled into the placeholder defined above the filters ───────
+
+    with metrics_container:
+        all_cols = st.columns(len(selected_labels) + 1)
+        all_cols[0].metric("Total Events", len(display_df))
+
+        for i, cat in enumerate(selected_labels):
+            count = len(display_df[display_df["category"] == cat])
+            all_cols[i + 1].metric(cat, count)
+
+    # ── Map ───────────────────────────────────────────────────────────────────
+
+    # [VIZ 4 MAP] Interactive geographic map — extra credit
+    st.subheader("Global Event Map")
+
+    event_layer = pdk.Layer(
+        "ScatterplotLayer",
+        data=display_df,
+        get_position="[longitude, latitude]",
+        get_radius=40000,
+        get_fill_color=[255, 100, 100, 200],
+        pickable=True,
+        filled=True,
+    )
+
+    view_state = pdk.ViewState(
+        latitude=15,
+        longitude=0,
+         zoom=1.3,
+         pitch=0,
+    )
+
+    st.pydeck_chart(
+        pdk.Deck(
+            initial_view_state=view_state,
+            layers=[event_layer],
+            tooltip={
+                "text": "{title}\nCategory: {category}\nDate: {date}\nDistance: {distance_km} km"
+            }
+        ),
+        use_container_width=True
+    )
