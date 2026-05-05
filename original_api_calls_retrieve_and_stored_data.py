@@ -29,7 +29,7 @@ def get_api_response(url, json_file_name, api_key="DEMO_KEY"):
         print(f"Fetched page {page}")
 
          # pull only the array
-        neos = resp.get("near_earth_objects", [])
+        neos = resp["near_earth_objects"]
         all_neos.extend(neos)
 
 
