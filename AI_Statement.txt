@@ -29,9 +29,9 @@ I interacted with Chat GPT on the following:
   Prompt:
     I don't think streamlit has a native pie chart function. 
     haz_counts = df["is_potentially_hazardous_asteroid"].value_counts() 
-    haz_counts.plot(kind="pie")| 
+    haz_counts.plot(kind="pie")
     
-    This is dataframe that I want to show as a pie chart to show percentage of hazardous asteroids. 
+    This is dataframe that I want to show as a pie chart, to show the percentages of hazardous asteroids. 
     Can we make it look better in streamlit, what are options to show percentages on the pie and label the axes. 
   Result:
     # Create a figure (canvas) and axis (drawing area)
