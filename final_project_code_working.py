@@ -149,7 +149,7 @@ elif page == 'Near Earth Objects':
     # [DA2] sort data .sort_index()
     # size_counts is a series
     size_counts = df["size_range"].value_counts().sort_index()
-
+    #[VIZ1]
     st.bar_chart(size_counts)
 
     # ----------------------------
@@ -171,7 +171,7 @@ elif page == 'Near Earth Objects':
         ylabel="",  # remove default label
         ax=ax1  # draw on this axis
     )
-
+    [VIZ2]
     # Display chart in Streamlit
     st.pyplot(fig1,use_container_width=False)
 
@@ -220,7 +220,7 @@ elif page == 'Near Earth Objects':
     # ----------------------------
 
     # FILTER DATA
-
+    #[DA5] - ?
     future_hazardous = approach_df[
         (approach_df["is_potentially_hazardous_asteroid"] == True) &
         (approach_df["close_approach_date"] >= today) &
@@ -241,7 +241,7 @@ elif page == 'Near Earth Objects':
 
     # Convert index to string
     year_counts.index = year_counts.index.astype(str)
-
+    #[viz3]
     st.line_chart(year_counts)
 
 #################################################
@@ -286,7 +286,6 @@ elif page == 'Earth Observatory Natural Event Tracker':
     def parse_events(events):
         rows = []
     
-        # [DA8] Iterating through every event row to extract and reshape data
         for event in events:
             latest_geometry = get_latest_geometry(event)
     
@@ -317,7 +316,8 @@ elif page == 'Earth Observatory Natural Event Tracker':
     def filter_by_location(df, user_lat, user_lon, radius_miles):
         filtered = df.copy()
 
-        # [DA9] Adding a new calculated column — distance from the user's location
+        # [DA9] Adding a new column — distance from the user's location
+        #[DA8] - iterrows
         distances = []
         for _, row in filtered.iterrows():
             dist = geodesic((user_lat, user_lon), (row["latitude"], row["longitude"])).miles
@@ -353,7 +353,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
     with location_col:
         st.markdown("#### Location Search")
     
-        # [ST3] Text input widget
+        # [ST2] Text input widget
         location_input = st.text_input(
             "Search near a location",
             placeholder="Example: Tokyo, Japan"
@@ -376,7 +376,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
     
     with category_col:
         st.markdown("#### Event Categories")
-    
+    #[ST1] - Toggle
         selected_labels = []
         for label in CATEGORY_OPTIONS:
             if st.toggle(label, value = True):
@@ -392,7 +392,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
     # Loading and displaying the data
     # ----------------------------
     
-    # [PY3] Error checking with try/except — catches file load failures gracefully
+    # [PY3] Error checking with try/except for if the file is loading
     try:
 
         basedir = os.path.dirname(__file__)
@@ -409,7 +409,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
         st.stop()
 
     with st.spinner("Loading events..."):
-        # Filter by selected categories
+        #[PY4]
         selected_titles = set(selected_labels)
         events = [
             e for e in all_events
