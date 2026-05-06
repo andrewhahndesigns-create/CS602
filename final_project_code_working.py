@@ -421,6 +421,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
         if apply_location_filter and location_input:
         # [PY2] geocode_location() returns two values — unpacked into lat and lon
             user_lat, user_lon = geocode_location(location_input)
+            display_df = filter_by_location(df, user_lat, user_lon, radius_miles)
 
    
     # ----------------------------
