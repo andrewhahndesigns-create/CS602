@@ -309,7 +309,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
                 "date": latest_geometry.get("date", "Unknown"),
                 "latitude": lat,
                 "longitude": lon,
-                "distance_miles": None,
+                "distance_miles": None, 
             })
     
         return pd.DataFrame(rows)
@@ -331,16 +331,24 @@ elif page == 'Earth Observatory Natural Event Tracker':
         # [DA2] Sort data in ascending order by distance from user location
         return filtered.sort_values(by="distance_miles")
     
-    # ── Metrics placeholder — renders here, filled after data loads ───────────────
+    # ----------------------------
+    # METRICS PLACEHOLDER
+    # ----------------------------
+    
     metrics_container = st.container()
     
     st.divider()
-    
-    # ── Filters — one row, two sections ─────────────────────
+        
+    # ----------------------------
+    # FILTERS
+    # ----------------------------
     
     location_col, category_col = st.columns([1, 1], gap="large")
     
-    # ── Location search ───────────────────────────────────────────────────────────
+    
+    # ----------------------------
+    # LOCATION SEARCH
+    # ----------------------------
     
     with location_col:
         st.markdown("#### Location Search")
@@ -362,7 +370,9 @@ elif page == 'Earth Observatory Natural Event Tracker':
     
         apply_location_filter = st.button("Search This Area")
     
-    # ── Category toggles ──────────────────────────────────────────────────────────
+    # ----------------------------
+    # CATEGORY TOGGLES
+    # ----------------------------
     
     with category_col:
         st.markdown("#### Event Categories")
@@ -378,7 +388,9 @@ elif page == 'Earth Observatory Natural Event Tracker':
     
     st.divider()
     
-    # ── Load and display ──────────────────────────────────────────────────────────
+    # ----------------------------
+    # Loading and displaying the data
+    # ----------------------------
     
     # [PY3] Error checking with try/except — catches file load failures gracefully
     try:
@@ -410,7 +422,10 @@ elif page == 'Earth Observatory Natural Event Tracker':
         # [PY2] geocode_location() returns two values — unpacked into lat and lon
             user_lat, user_lon = geocode_location(location_input)
 
-    # ── Metrics — filled into the placeholder defined above the filters ───────
+   
+    # ----------------------------
+    # Metrics
+    # ----------------------------
 
     with metrics_container:
         all_cols = st.columns(len(selected_labels) + 1) #AI used here the columns made this confusing to work with.
@@ -420,8 +435,11 @@ elif page == 'Earth Observatory Natural Event Tracker':
             count = len(display_df[display_df["category"] == cat])
             all_cols[i + 1].metric(cat, count)
 
-    # ── Map ───────────────────────────────────────────────────────────────────
-
+    
+    # ----------------------------
+    # MAP
+    # ----------------------------
+    
     # [VIZ 4 MAP] Interactive map — extra credit
     st.subheader("Global Event Map")
 
