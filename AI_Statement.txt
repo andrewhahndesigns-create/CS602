@@ -111,5 +111,238 @@ I interacted with Chat GPT on the following:
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+
 ANDREW
+
+I interacted with Claude on the following: 
+##################################
+
+
+Imports sections 
+
+Prompt: 
+I am making an interactive map with Streamlit in python using a nasa api and the locations come back as coordinates. I want the users to be able to specify a location and be able to get the distance an event happened from a location if they would like to do so. Do I need any packages for Python to do this.
+
+geopy — the most common choice for this kind of use case. It gives you clean distance calculations and geocoding (converting a user-typed location like "Chicago, IL" into coordinates), which you'll almost certainly want if users are specifying locations by name rather than entering raw lat/lon.
+python
+from geopy.distance import geodesic
+from geopy.geocoders import Nominatim
+
+# Geocode a user's typed location
+geolocator = Nominatim(user_agent="my_app")
+location = geolocator.geocode("Chicago, IL")
+user_coords = (location.latitude, location.longitude)
+
+# Calculate distance
+event_coords = (34.05, -118.24)
+distance_km = geodesic(user_coords, event_coords).km
+
+
+functions sections 
+
+Prompt: 
+I am making an interactive map with Streamlit in python using a nasa api and the locations come back as coordinates. I want the users to be able to specify a location and be able to get the distance an event happened from a location if they would like to do so. Do I need any packages for Python to do this.
+
+geopy — the most common choice for this kind of use case. It gives you clean distance calculations and geocoding (converting a user-typed location like "Chicago, IL" into coordinates), which you'll almost certainly want if users are specifying locations by name rather than entering raw lat/lon.
+python
+from geopy.distance import geodesic
+from geopy.geocoders import Nominatim
+
+# Geocode a user's typed location
+geolocator = Nominatim(user_agent="my_app")
+location = geolocator.geocode("Chicago, IL")
+user_coords = (location.latitude, location.longitude)
+
+# Calculate distance
+event_coords = (34.05, -118.24)
+distance_km = geodesic(user_coords, event_coords).km
+
+
+def filter_by_location
+
+Prompt
+
+I am workign in Python and Streamlit, working with a NASA JSON file. I already have some code filled out for a function I am trying to set up called:
+  
+def filter_by_location(df, user_lat, user_lon, radius_miles):
+  
+as right now I have some other code below the function as follows:
+ filtered = df.copy() - this is to make sure i dont edit the original data frame
+distances = [] - i know i will need to store distances somewhere
+
+I was using this before: def haversine(lat1, lon1, lat2, lon2):
+
+but found out I could use an import from geopy called geodesic. could you help me complete the function using this
+
+Response
+
+from geopy.distance import geodesic
+
+def filter_by_location(df, user_lat, user_lon, radius_miles):
+    filtered = df.copy()
+    distances = []
+
+    for _, row in filtered.iterrows():
+        station_coords = (row["lat"], row["lon"])
+        user_coords = (user_lat, user_lon)
+        distance = geodesic(user_coords, station_coords).miles
+        distances.append(distance)
+
+    filtered["distance_miles"] = distances
+    filtered = filtered[filtered["distance_miles"] <= radius_miles]
+
+    return filtered
+
+A few things to note:
+•	geodesic(point1, point2).miles takes two (lat, lon) tuples and returns the distance. It uses the WGS-84 ellipsoid model, which is more accurate than the haversine formula for real-world distances.
+•	The distances are stored in a new column "distance_miles" on the copied dataframe, so your original df stays untouched.
+•	The final filter keeps only rows where the station falls within your radius_miles.
+•	Make sure your column names "lat" and "lon" match what's actually in your NASA JSON — they might be something like "latitude" / "longitude" depending on the dataset.
+You may also want to sort by distance before returning, which is handy for displaying nearest stations first in Streamlit:
+
+return filtered.sort_values("distance_miles").reset_index(drop=True)
+
+loading data on Neonet page
+
+Prompt:
+
+This is the code I currently have. I want to make this a list comprehension. Could you walk me through how to do that?
+
+selected_titles = set(selected_labels)
+events = []
+for e in all_events:
+    for c in e.get("categories", []):
+        if c["title"] in selected_titles:
+            events.append(e)
+            break
+
+Response
+
+Step 1: Start with the outer loop
+python
+events = [e for e in all_events]
+Step 2: Add the condition — but the condition itself involves a loop
+That inner loop with a break is asking: "does at least one category match?" That's exactly what any() does:
+python
+any(c["title"] in selected_titles for c in e.get("categories", []))
+Step 3: Plug it in as the filter
+python
+events = [
+    e for e in all_events
+    if any(c["title"] in selected_titles for c in e.get("categories", []))
+]
+This is equivalent to your original because:
+•	The for/break pattern stops as soon as it finds one match → any() short-circuits the same way
+•	append(e) once per event → the list comprehension naturally includes e once
+The selected_titles = set(selected_labels) line stays as-is — it's already efficient and doesn't need to change.
+
+
+Metric container section:
+
+Using python and Streamlit, write a metrics section that fills a pre-existing container called metrics_container. It should dynamically create columns based on the length of selected_labels plus one. The first column should show a metric called 'Total Events' with the count of rows in display_df. Then loop through selected_labels and for each category display a metric showing how many rows in display_df match that category
+
+
+Response 
+
+with metrics_container:
+    cols = st.columns(len(selected_labels) + 1)
+
+    with cols[0]:
+        st.metric("Total Events", len(display_df))
+
+    for i, label in enumerate(selected_labels):
+        with cols[i + 1]:
+            count = len(display_df[display_df["category"] == label])
+            st.metric(label, count)
+A few notes on assumptions you may need to adjust:
+•	"category" — replace this with whatever column in display_df holds the label/category values you're filtering against.
+•	metrics_container — this expects the container to already be defined upstream, e.g. metrics_container = st.container() or st.empty(). The with block writes directly into it.
+•	Column label as metric label — st.metric(label, count) uses the raw selected_labels value as the metric title. Wrap it in a formatting function if you want cleaner display names (e.g. .replace("_", " ").title()).
+
+
+
+Check for assignment requirements:
+
+Prompt
+
+I would like for you to run my file against what my assignment is looking for and tell me on which line my group mate and I pass a qualifies requirement you can do this is a list followed by the code that we passed. Attached is the code for the original API call and for the final project code, as well as the requirements. 
+
+[PY1] A function with two or more parameters, one of which has a default value, called at least twice (once with the default value, and once without) 
+[PY2] A function that returns more than one value  
+[PY3] Error checking with try/except  
+[PY4] A list comprehension 
+[PY5] A dictionary where you write code to access its keys, values, or items  
+
+Streamlit Features: 
+
+[ST1], [ST2], [ST3] At least three Streamlit different [widgets](https://docs.streamlit.io/library/api-reference/widgets)  (sliders, drop downs, multi-selects, text boxes, etc) 
+[ST4] Customized page design features (sidebar, fonts, colors, images, navigation) 
+
+Visualizations:  (at least four,  at least one of which is a map) 
+
+[VIZ1], [VIZ2], [VIZ3] At least three different charts with titles, colors, labels, legends, as appropriate, one can be a table 
+[VIZ 4 MAP] (extra points) Create an interactive map if geographic information is available in your dataset 
+
+Data Analytics Capabilities:  (at least six) 
+
+[DA1] Clean or manipulate data 
+[DA2] Sort data in ascending or descending order, by one or more columns,  
+[DA3] Find Top largest or smallest values of a column 
+[DA4] Filter data by one condition 
+[DA5] Filter data by two or more conditions with AND or OR 
+[DA6] Analyze data with pivot tables 
+[DA7] Add/drop/select/create new/group columns  
+[DA8] Iterate through rows of a DataFrame with iterrows() 
+[DA9] Adde a new column or perform calculations on DataFrame columns 
+
+[PY1] A function with two or more parameters, one of which has a default value, called at least twice (once with the default value, and once without) 
+[PY2] A function that returns more than one value  
+[PY3] Error checking with try/except  
+[PY4] A list comprehension 
+[PY5] A dictionary where you write code to access its keys, values, or items  
+
+Streamlit Features: 
+
+[ST1], [ST2], [ST3] At least three Streamlit different [widgets](https://docs.streamlit.io/library/api-reference/widgets)  (sliders, drop downs, multi-selects, text boxes, etc) 
+[ST4] Customized page design features (sidebar, fonts, colors, images, navigation) 
+
+Visualizations:  (at least four,  at least one of which is a map) 
+
+[VIZ1], [VIZ2], [VIZ3] At least three different charts with titles, colors, labels, legends, as appropriate, one can be a table 
+[VIZ 4 MAP] (extra points) Create an interactive map if geographic information is available in your dataset 
+
+Data Analytics Capabilities:  (at least six) 
+
+[DA1] Clean or manipulate data 
+[DA2] Sort data in ascending or descending order, by one or more columns,  
+[DA3] Find Top largest or smallest values of a column 
+[DA4] Filter data by one condition 
+[DA5] Filter data by two or more conditions with AND or OR 
+[DA6] Analyze data with pivot tables 
+[DA7] Add/drop/select/create new/group columns  
+[DA8] Iterate through rows of a DataFrame with iterrows() 
+[DA9] Adde a new column or perform calculations on DataFrame columns
+
+Response:
+
+Summary Table
+Requirement	Status	File
+PY1	⚠️ Only called once	original_api_calls...
+PY2	✅ Line 175	final_project_code_working
+PY3	✅ Line 208	final_project_code_working
+PY4	✅ Line 227	final_project_code_working
+PY5	✅ Lines 163–204	final_project_code_working
+ST1–ST3	✅ Lines 121, 193, 198, 204	final_project_code_working
+ST4	✅ Lines 32–41	final_project_code_working
+VIZ1–VIZ3	✅ Lines 93, 98, 155	final_project_code_working
+VIZ4 MAP	✅ Lines 256–278	final_project_code_working
+DA1	✅ Lines 184–200	final_project_code_working
+DA2	✅ Lines 91, 201	final_project_code_working
+DA3	⚠️ Not found	—
+DA4	✅ Line 222	final_project_code_working
+DA5	✅ Lines 131–135	final_project_code_working
+DA6	⚠️ Not found	—
+DA7	✅ Lines 82–88	final_project_code_working
+DA8	✅ Lines 214–218	final_project_code_working
+DA9	✅ Lines 219–220	final_project_code_working
 
