@@ -14,6 +14,10 @@ DESCRIPTION:
    and stored. The first dataset provides data on asteroids from NASA's Asteroid team. The second datset provides 
    information on Natural Events observed in NASA imagery. 
 
+AI Statment: 
+   AI was used in various spot in the assignment in the original api call, and the Final project code.
+Please see AI_Statement for further information on use. 
+   
 """
 
 
@@ -305,28 +309,27 @@ elif page == 'Earth Observatory Natural Event Tracker':
                 "date": latest_geometry.get("date", "Unknown"),
                 "latitude": lat,
                 "longitude": lon,
-                "distance_km": None,
-                "link": event.get("link")
+                "distance_miles": None,
             })
     
         return pd.DataFrame(rows)
     
-    def filter_by_location(df, user_lat, user_lon, radius_km):
+    def filter_by_location(df, user_lat, user_lon, radius_miles):
         filtered = df.copy()
 
         # [DA9] Adding a new calculated column — distance from the user's location
         distances = []
         for _, row in filtered.iterrows():
-            dist = geodesic((user_lat, user_lon), (row["latitude"], row["longitude"])).km
+            dist = geodesic((user_lat, user_lon), (row["latitude"], row["longitude"])).miles
             distances.append(dist)
-        filtered["distance_km"] = distances
-        filtered["distance_km"] = filtered["distance_km"].round(1)
+        filtered["distance_miles"] = distances
+        filtered["distance_miles"] = filtered["distance_miles"].round(1)
 
         # [DA4] Filter data by one condition — keep only events within the radius
-        filtered = filtered[filtered["distance_km"] <= radius_km]
+        filtered = filtered[filtered["distance_miles"] <= radius_miles]
 
         # [DA2] Sort data in ascending order by distance from user location
-        return filtered.sort_values(by="distance_km")
+        return filtered.sort_values(by="distance_miles")
     
     # ── Metrics placeholder — renders here, filled after data loads ───────────────
     metrics_container = st.container()
@@ -335,7 +338,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
     
     # ── Filters — one row, two sections ─────────────────────
     
-    location_col, category_col = st.columns([1, 2], gap="large")
+    location_col, category_col = st.columns([1, 1], gap="large")
     
     # ── Location search ───────────────────────────────────────────────────────────
     
@@ -349,8 +352,8 @@ elif page == 'Earth Observatory Natural Event Tracker':
         )
     
         # [ST3] Slider widget
-        radius_km = st.slider(
-            "Radius around location (km)",
+        radius_miles = st.slider(
+            "Radius around location (miles)",
             min_value=50,
             max_value=3000,
             value=500,
@@ -365,13 +368,12 @@ elif page == 'Earth Observatory Natural Event Tracker':
         st.markdown("#### Event Categories")
     
         selected_labels = []
-        toggle_cols = st.columns(2)
-        for i, label in enumerate(CATEGORY_OPTIONS):
-            if toggle_cols[i % 2].toggle(label, value=True):
+        for label in CATEGORY_OPTIONS:
+            if st.toggle(label, value = True):
                 selected_labels.append(label)
 
         if not selected_labels:
-            st.warning("Select at least one category.")
+            st.warning("Selected at least one category.")
             st.stop()
     
     st.divider()
@@ -399,39 +401,19 @@ elif page == 'Earth Observatory Natural Event Tracker':
         selected_titles = set(selected_labels)
         events = [
             e for e in all_events
-            if any(c["title"] in selected_titles for c in e.get("categories", []))
-        ] if selected_labels else all_events
+            if any(c["title"] in selected_titles for c in e.get("categories", []))] #AI used here to get the list comprehension
 
         df = parse_events(events)
+        display_df = df.copy()
 
-    if df.empty:
-        st.info("No events found for the selected filters.")
-        st.stop()
-
-    display_df = df.copy()
-
-    if apply_location_filter and location_input:
+        if apply_location_filter and location_input:
         # [PY2] geocode_location() returns two values — unpacked into lat and lon
-        user_lat, user_lon = geocode_location(location_input)
-
-        if user_lat is None:
-            st.error("Could not find that location.")
-            st.stop()
-
-        display_df = filter_by_location(df, user_lat, user_lon, radius_km)
-
-        if display_df.empty:
-            st.info("No events found near that location.")
-            st.stop()
-
-        st.success(
-            f"Showing {len(display_df)} events within {radius_km} km of {location_input}."
-        )
+            user_lat, user_lon = geocode_location(location_input)
 
     # ── Metrics — filled into the placeholder defined above the filters ───────
 
     with metrics_container:
-        all_cols = st.columns(len(selected_labels) + 1)
+        all_cols = st.columns(len(selected_labels) + 1) #AI used here the columns made this confusing to work with.
         all_cols[0].metric("Total Events", len(display_df))
 
         for i, cat in enumerate(selected_labels):
@@ -440,7 +422,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
 
     # ── Map ───────────────────────────────────────────────────────────────────
 
-    # [VIZ 4 MAP] Interactive geographic map — extra credit
+    # [VIZ 4 MAP] Interactive map — extra credit
     st.subheader("Global Event Map")
 
     event_layer = pdk.Layer(
@@ -465,7 +447,7 @@ elif page == 'Earth Observatory Natural Event Tracker':
             initial_view_state=view_state,
             layers=[event_layer],
             tooltip={
-                "text": "{title}\nCategory: {category}\nDate: {date}\nDistance: {distance_km} km"
+                "text": "{title}\nCategory: {category}\nDate: {date}\nDistance: {distance_miles} miles"
             }
         ),
         use_container_width=True
