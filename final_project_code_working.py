@@ -171,7 +171,7 @@ elif page == 'Near Earth Objects':
         ylabel="",  # remove default label
         ax=ax1  # draw on this axis
     )
-    [VIZ2]
+    #[VIZ2]
     # Display chart in Streamlit
     st.pyplot(fig1,use_container_width=False)
 
